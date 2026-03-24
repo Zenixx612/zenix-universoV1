@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zenix Universe Store</title>
+
+<style>
+body{
+margin:0;
+background:#050508;
+font-family:Arial;
+color:white;
+}
+
+/* HEADER */
+header{
+position:sticky;
+top:0;
+background:#050508ee;
+display:flex;
+align-items:center;
+padding:15px;
+color:#c084fc;
+text-shadow:0 0 10px #9333ea,0 0 30px #9333ea,0 0 60px #9333ea;
+}
+
+.menu-btn{font-size:24px;cursor:pointer;margin-right:10px;}
+
+/* MENU */
+.menu{
+position:fixed;
+top:0;
+left:-100%;
+width:70%;
+height:100%;
+background:#0d0d12;
+padding:20px;
+transition:.3s;
+z-index:999;
+box-shadow:0 0 50px #9333ea;
+overflow:auto;
+}
+.menu.active{left:0;}
+
+.menu-header{
+display:flex;
+justify-content:space-between;
+}
+
+.close-menu{
+cursor:pointer;
+font-size:24px;
+color:#c084fc;
+}
+
+.menu button{
+width:100%;
+margin-top:10px;
+}
+
+/* TOAST */
+.toast{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(.8);
+background:#111;
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 40px #9333ea,0 0 80px #9333ea;
+text-align:center;
+display:none;
+z-index:999;
+animation:pop .4s ease;
+}
+
+@keyframes pop{
+from{transform:translate(-50%,-50%) scale(.6);opacity:0;}
+to{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+
+/* CONTENIDO */
+.container{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:25px;
+padding:20px;
+}
+
+/* CARD */
+.card{
+background:#111;
+padding:25px;
+border-radius:20px;
+width:90%;
+max-width:360px;
+box-shadow:0 0 20px #9333ea;
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 40px #c084fc,0 0 80px #9333ea;
+}
+
+/* INPUT */
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:12px;
+border:none;
+}
+
+input,select{
+background:#1f1f2e;
+color:white;
+}
+
+button{
+background:linear-gradient(45deg,#9333ea,#c084fc);
+color:white;
+font-weight:bold;
+box-shadow:0 0 20px #9333ea,0 0 40px #9333ea;
+cursor:pointer;
+}
+
+button:hover{
+box-shadow:0 0 40px #c084fc,0 0 80px #9333ea;
+}
+
+/* PASSWORD EYE */
+.eye{
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:18px;
+}
+
+/* MODAL */
+#modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.9);
+justify-content:center;
+align-items:center;
+}
+
+.box{
+background:#111;
+padding:20px;
+border-radius:15px;
+width:300px;
+box-shadow:0 0 40px #9333ea;
+}
+
+/* FLOAT */
+.float{
+position:fixed;
+right:20px;
+bottom:20px;
+padding:15px;
+border-radius:50%;
+background:#25D366;
+cursor:pointer;
+box-shadow:0 0 20px #25D366;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<span class="menu-btn" onclick="toggleMenu()">☰</span>
+Zenix Universe Store
+</header>
+
+<!-- MENU -->
+<div class="menu" id="menu">
+<div class="menu-header">
+<h3>Menú</h3>
+<span class="close-menu" onclick="toggleMenu()">✖</span>
+</div>
+
+<button onclick="verProductos()">Productos</button>
+<button onclick="verNumeros()">Números Virtuales</button>
+<button onclick="verUsuario()">Ver Usuario</button>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="container" id="contenido"></div>
+
+<!-- MODAL -->
+<div id="modal">
+<div class="box">
+<h3>💳 Pago</h3>
+<p id="info"></p>
+
+<select id="pais" onchange="mostrarPago()">
+<option value="">Elige tu país</option>
+<option value="colombia">Colombia</option>
+<option value="venezuela">Venezuela</option>
+<option value="rd">República Dominicana</option>
+<option value="usa">Estados Unidos</option>
+</select>
+
+<div id="metodo"></div>
+
+<button onclick="enviar()">Ya hice el pago</button>
+<button onclick="cerrar()">Cerrar</button>
+</div>
+</div>
+
+<div class="float" onclick="wa()">💬</div>
+
+<script>
+let prod="",plan="",usuarioActivo=null;
+
+/* TOAST */
+function toast(msg){
+let t=document.getElementById("toast");
+t.innerHTML=msg;
+t.style.display="block";
+setTimeout(()=>t.style.display="none",7000);
+}
+
+/* MENU */
+function toggleMenu(){
+menu.classList.toggle("active");
+}
+
+/* LOGIN */
+function loginUI(){
+contenido.innerHTML=`
+<div class="card">
+<h2>Login</h2>
+
+<input id="user" placeholder="Usuario">
+
+<div style="position:relative">
+<input id="pass" type="password" placeholder="Contraseña">
+<span class="eye" onclick="togglePass('pass',this)">👁️</span>
+</div>
+
+<label><input type="checkbox" id="recordar"> Recordar</label>
+
+<button onclick="login()">Entrar</button>
+<p onclick="registerUI()">Crear cuenta</p>
+</div>`;
+}
+
+/* REGISTRO */
+function registerUI(){
+contenido.innerHTML=`
+<div class="card">
+<h2>Registro</h2>
+
+<input id="ruser" placeholder="Usuario">
+<input id="rmail" placeholder="Correo">
+<input id="rphone" placeholder="Teléfono">
+
+<div style="position:relative">
+<input id="rpass" type="password" placeholder="Contraseña">
+<span class="eye" onclick="togglePass('rpass',this)">👁️</span>
+</div>
+
+<button onclick="register()">Registrar</button>
+</div>`;
+}
+
+/* FUNCIONES */
+function register(){
+localStorage.setItem("user",ruser.value);
+localStorage.setItem("pass",rpass.value);
+localStorage.setItem("mail",rmail.value);
+localStorage.setItem("phone",rphone.value);
+toast("Cuenta creada 👻");
+loginUI();
+}
+
+function login(){
+if(user.value===localStorage.getItem("user") &&
+pass.value===localStorage.getItem("pass")){
+
+usuarioActivo=user.value;
+
+if(recordar.checked){
+localStorage.setItem("recordado",user.value);
+}
+
+verProductos();
+
+/* BIENVENIDA */
+setTimeout(()=>{
+toast(`
+💜 Bienvenido a la Tienda Zenix Universe Store<br><br>
+Únete a nuestro canal 👇<br><br>
+<button onclick="window.open('https://whatsapp.com/channel/0029Vb7XEcH23n3gfiOUoz0Y')">
+Ir al canal
+</button>
+`);
+},500);
+
+}else alert("Error");
+}
+
+/* AUTO LOGIN */
+if(localStorage.getItem("recordado")){
+usuarioActivo=localStorage.getItem("recordado");
+verProductos();
+}else{
+loginUI();
+}
+
+/* OJITO */
+function togglePass(id,icon){
+let input=document.getElementById(id);
+if(input.type==="password"){
+input.type="text";
+icon.textContent="🙈";
+}else{
+input.type="password";
+icon.textContent="👁️";
+}
+}
+
+/* PRODUCTOS */
+const productos={
+"HG Cheats":["1 DIA 1.20$","10 DIAS 5.70$","30 DIAS 9.20$"],
+"LK TEAM":["1 DIA 0.90$","3 DIAS 1.50$","5 DIAS 3.70$","7 DIAS 5.10$","10 DIAS 7.30$","30 DIAS 9.30$"],
+"XTFFH4X":["1 DIA 0.90$","3 DIAS 1.50$","7 DIAS 7$","10 DIAS 7.30$","30 DIAS 9.30$"],
+"BR MODS":["1 DIA 0.90$","3 DIAS 1.50$","7 DIAS 5.10$","30 DIAS 9.30$"],
+"CUBAN MODS":["1 DIA 1.10$","7 DIAS 2.70$","15 DIAS 6.20$","30 DIAS 7.60$"],
+"CUBAN RAGE":["1 DIA 0.80$","7 DIAS 4.10$","30 DIAS 7.60$"],
+"BEYOND CHEATS":["1 DIA 0.90$","5 DIAS 3.70$","7 DIAS 5.10$","10 DIAS 7.30$","30 DIAS 9.30$"],
+"EVO CHEAT":["1 DIA 0.90$","3 DIAS 1.50$","7 DIAS 5.10$","30 DIAS 9.30$"],
+"MOD MENU":["PRO 50$","BASICO 45$"],
+"BOT TELEGRAM / WHATSAPP":["PRO 50$","BASICO 45$"],
+"DRIP":["1 DIA 0.90$","7 DIAS 5.10$","30 DIAS 9.30$"]
+};
+
+function verProductos(){
+menu.classList.remove("active");
+let html="";
+for(let p in productos){
+html+=`
+<div class="card">
+<h2>${p}</h2>
+<select onchange="localStorage.setItem('${p}',this.value)">
+${productos[p].map(x=>`<option>${x}</option>`)}
+</select>
+<button onclick="comprar('${p}')">COMPRAR</button>
+</div>`;
+}
+contenido.innerHTML=html;
+}
+
+/* NUMEROS */
+function verNumeros(){
+menu.classList.remove("active");
+contenido.innerHTML=`
+<div class="card">
+<h2>🌍 Números Virtuales</h2>
+
+<select id="paisNum">
+<option>Colombia</option>
+<option>Estados Unidos</option>
+<option>Venezuela</option>
+<option>México</option>
+<option>Argentina</option>
+<option>Chile</option>
+<option>Perú</option>
+<option>España</option>
+<option>Brasil</option>
+<option>Canadá</option>
+<option>Japón</option>
+<option>Alemania</option>
+</select>
+
+<p>💰 Precio: 5$</p>
+
+<button onclick="comprarNumero()">COMPRAR</button>
+</div>`;
+}
+
+function comprarNumero(){
+let p=document.getElementById("paisNum").value;
+
+window.open(`https://wa.me/573008405256?text=${encodeURIComponent(
+"👋 Bienvenido a Soporte Zenix\n\n🌍 Número Virtual\n📍 "+p+"\n💰 5$\n\nAdjunto comprobante"
+)}`);
+}
+
+/* COMPRA */
+function comprar(p){
+prod=p;
+plan=localStorage.getItem(p)||"No seleccionado";
+info.innerHTML=`📦 ${prod}<br>💳 ${plan}`;
+modal.style.display="flex";
+}
+
+function mostrarPago(){
+if(pais.value==="colombia")metodo.innerHTML="🇨🇴 PayPal: @jesusbarandica";
+if(pais.value==="venezuela")metodo.innerHTML="🇻🇪 Pago móvil";
+if(pais.value==="rd")metodo.innerHTML="🇩🇴 Transferencia";
+if(pais.value==="usa")metodo.innerHTML="🇺🇸 PayPal / Zelle";
+}
+
+function enviar(){
+let msg=`👋 Bienvenido a Soporte Zenix
+
+📦 ${prod}
+💳 ${plan}
+
+Adjunto comprobante`;
+
+window.open(`https://wa.me/573008405256?text=${encodeURIComponent(msg)}`);
+}
+
+function cerrar(){modal.style.display="none";}
+function wa(){window.open("https://wa.me/573008405256");}
+
+function verUsuario(){
+menu.classList.remove("active");
+contenido.innerHTML=`
+<div class="card">
+<h2>Usuario</h2>
+<p>${localStorage.getItem("user")||""}</p>
+<p>${localStorage.getItem("mail")||""}</p>
+<p>${localStorage.getItem("phone")||""}</p>
+</div>`;
+}
+
+function logout(){
+localStorage.removeItem("recordado");
+loginUI();
+}
+</script>
+
+</body>
+</html>
